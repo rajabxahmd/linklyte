@@ -5,6 +5,11 @@ app_description = "linklyteeee"
 app_email = "rajabxamd.tva@gmail.com"
 app_license = "mit"
 
+
+website_path_resolver = "linklyte.utils.path_resolver"
+
+website_route_rules = [{'from_route': '/frontend/<path:app_path>', 'to_route': 'frontend'},]
+
 # Apps
 # ------------------
 
@@ -241,4 +246,5 @@ app_license = "mit"
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
+
 

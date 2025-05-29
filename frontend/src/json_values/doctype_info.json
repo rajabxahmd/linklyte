@@ -1,0 +1,21 @@
+[
+  {
+    "doctype": "File",
+    "fields": ["name", "file_name", "file_size", "file_type"],
+    "columns": [
+      { "field": "file_name", "label": "File Name" },
+      { "field": "file_size", "label": "Size (KB)" },
+      { "field": "file_type", "label": "Type" }
+    ],
+    "order_by": "creation asc"
+  },
+  {
+    "doctype": "User",
+    "fields": ["name", "file_name", "file_size", "file_type"],
+    "columns": [
+      { "field": "full_name", "label": "Full Name" },
+      { "field": "username", "label": "Username" }
+    ],
+    "order_by": "creation asc"
+  }
+]

@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2025-05-05 09:20:47.717081",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2025-05-05 09:20:47.717081",
+ "modified_by": "Administrator",
+ "module": "Linklyte",
+ "name": "frontend",
+ "owner": "Administrator",
+ "page_name": "frontend",
+ "restrict_to_domain": "http://127.0.0.1:40006/frontend",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0
+}
