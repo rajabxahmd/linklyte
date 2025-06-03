@@ -4,9 +4,9 @@ import { userResource } from '@/data/user'
 
 const routes = [
   {
-    path: '/',
+    path: '/:doctype',
     name: 'Home',
-    component: () => import('@/pages/Home.vue'),
+    component: () => import('@/pages/alternatehome.vue'),
   },
   {
     path: '/alt/:id',

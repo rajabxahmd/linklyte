@@ -7,12 +7,12 @@
 					<button
 						@click="
 							setOrderBy(
-								values.order_by === 'creation asc'
+								selectedDoctype.order_by === 'creation asc'
 									? 'creation desc'
 									: 'creation asc',
 							)
 						"
-						class="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-base text-gray-700"
+						class="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 px-3 py-1 rounded text-base text-gray-700"
 					>
 						<img :src="sortBtnSrc" alt="Sort Order Icon" class="w-4 h-4 inline" />
 						<span>sort</span>
@@ -50,7 +50,7 @@
 				>
 					<div>
 						<button
-							v-for="(btnLimit, idx) in [2, 4, 20]"
+							v-for="(btnLimit, idx) in [2, 4, 8]"
 							:key="btnLimit"
 							type="button"
 							@click="setLimit(btnLimit)"
@@ -68,8 +68,16 @@
 						</button>
 					</div>
 					<div class="flex items-center gap-4">
-						<Showmore :btnstate="btnstate" />
-						<span class="text-gray-700">{{ limit }} of {{ docCount }}</span>
+						<Showmore
+						 :fileBlocks="fileBlocks"
+						 :limit="limit"
+						 :docCount="docCount"
+						 :btnstate="btnstate"
+						 :displayLimit="displayLimit" 
+						 @update:fileBlocks="fileBlocks = $event"
+						 @update:limit="limit = $event"
+						 />
+						<span class="text-gray-700">{{ displayLimit }} of {{ docCount }}</span>
 					</div>
 				</section>
 			</div>
@@ -78,10 +86,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch, computed } from 'vue'
+import { onMounted, ref, watch, computed, reactive } from 'vue'
 import { call, ListView, Tooltip } from 'frappe-ui'
-
-import rawValues from '@/json_values/doctype_info.json'
+import { useRoute } from 'vue-router'
+import rawValues from '@/json_values/test.json'
 import Header from '../components/header.vue'
 import ascc from '@/assets/Inter/sort-asc-16.svg'
 import desc from '@/assets/Inter/sort-desc-16.svg'
@@ -90,13 +98,24 @@ import Showmore from '../components/showmore.vue'
 const fileBlocks = ref([])
 const limit = ref(2)
 const isLoadingFiles = ref(false)
-const values = ref({ ...rawValues })
+const docCount = ref(0)
+const btnstate = ref(2)
+
+const route = useRoute()
+const selectedDoctype = reactive(
+  rawValues.find(obj => obj.doctype.toLowerCase() === route.params.doctype)
+)
 
 const fetchFiles = async () => {
 	isLoadingFiles.value = true
 	try {
+		const totalCount = await call('frappe.client.get_count', {
+				doctype: selectedDoctype.doctype
+			})
+		docCount.value = totalCount
+
 		const response = await call('frappe.client.get_list', {
-			...values.value,
+			...selectedDoctype,
 			limit_page_length: limit.value,
 		})
 		fileBlocks.value = response
@@ -105,8 +124,12 @@ const fetchFiles = async () => {
 	}
 }
 
+const displayLimit = computed(() => {
+  return Math.min(limit.value, docCount.value)
+})
+
 const columns = computed(() =>
-	values.value.columns.map((c) => ({
+	selectedDoctype.columns.map((c) => ({
 		key: c.field,
 		label: c.label,
 		width: '12rem',
@@ -119,14 +142,30 @@ onMounted(() => {
 
 const setLimit = (value) => {
 	limit.value = value
+	btnstate.value = value
 	fetchFiles()
 }
 const setOrderBy = (orderby) => {
-	values.value.order_by = orderby
+	selectedDoctype.order_by = orderby
 	fetchFiles()
+	console.log("orderby",selectedDoctype.order_by)
 }
-const orderIconSrc = computed(() => (values.value.order_by === 'creation asc' ? ascc : desc))
-const orderIconText = computed(() =>
-	values.value.order_by === 'creation asc' ? 'sort in descending' : 'sort in ascending',
+
+const sortBtnSrc = computed(() => (selectedDoctype.order_by === 'creation asc' ? ascc : desc))
+console.log("sortbtn ", sortBtnSrc.value)
+const sortBtnTooltip = computed(() =>
+	selectedDoctype.order_by === 'creation asc' ? 'sort in descending' : 'sort in ascending',
 )
 </script>
+
+<style scoped>
+#fixed-bottom {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: rgba(255, 255, 255, 0.76);
+	color: white;
+	text-align: center;
+}
+</style>

@@ -14,11 +14,16 @@ import { call } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import rawValues from '@/json_values/doctype_info.json'
 import { defineProps } from 'vue'
+const emit = defineEmits(['update:fileBlocks', 'update:limit'])
 const props = defineProps({
 	btnstate: Number,
+	docCount: Number,
+	limit: Number,
+	fileBlocks: Array,
+	displayLimit: Number,
 })
 const filesStore = useFilesStore()
-const showButton = computed(() => filesStore.limit < filesStore.docCount)
+const showButton = computed(() => props.limit < props.docCount)
 const values = ref({ ...rawValues })
 
 function debounce(fn, delay) {
@@ -34,11 +39,12 @@ const showMore = debounce(() => {
 		const responseB = await call('frappe.client.get_list', {
 			...values.value,
 			limit_page_length: props.btnstate,
-			limit_start: filesStore.fileBlocks.length,
+			limit_start: props.fileBlocks.length,
 		})
 
-		filesStore.fileBlocks.push(...responseB)
-		filesStore.limit = filesStore.fileBlocks.length
+		// props.fileBlocks.push(...responseB)
+		emit('update:fileBlocks', [...props.fileBlocks, ...responseB])
+		emit('update:limit', props.fileBlocks.length + responseB.length)
 	}
 	fetchFilesB()
 }, 500)
